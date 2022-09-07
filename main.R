@@ -22,26 +22,25 @@ pourc = mean(test$pourc)
 
 test <- rast(ncol = larg, nrow = long, xmin = 0, xmax = 100, ymin = -200, ymax = 0)
 
+values(test) <- 1
+
 test
 plot(test)
 
-values(test) <- 1:ncell(test)
-test
-plot(test)
 
-matrix.prof <- matrix(nrow = 200, ncol = 3)
 
-for (i in 1:nrow(matrix.prof)) {
 
-  matrix.prof[i,1] <- round(ncell(test) * (i-1) / nrow(matrix.prof))  
-  matrix.prof[i,2] <- round(ncell(test) * i / nrow(matrix.prof))
-  matrix.prof[i,3] <- -i
-  
-}
 
-prof <- classify(test, rcl = matrix.prof)
-plot(prof)
 
-writeRaster(x = prof, filename = "profondeur.tif")
+
+
+
+
+
+
+
+
+
+
 
 
