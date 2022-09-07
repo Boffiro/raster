@@ -27,9 +27,14 @@ values(test) <- 1
 test
 plot(test)
 
+### 
 
+### 
 
+### Rasterisation 
 
+raster.point <- rasterize(x = point, y = raster, background = 0)
+# étape de rasterisation des vecteurs relevés
 
 
 
