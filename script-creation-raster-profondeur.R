@@ -5,15 +5,15 @@ library(terra)
 
 ## Dimensions
 
-larg = 
+larg = 100
 # Rentrer la largeur en pixel que l'on veut
-long = 
+long = 130
 # Rentrer la longeur en pixel que l'on veut
 
-xmin = 
-xmax = 
-ymin = 
-ymax = 
+xmin = 0
+xmax = 100
+ymin = 0
+ymax = 130
 # Rentrer les coordonnées que l'on souhaite utilser pou délimiter notre 
 
 ## Création raster
@@ -21,19 +21,18 @@ test <- rast(ncol = larg, nrow = long, xmin = xmin, xmax = xmax, ymin = ymin, ym
 
 values(test) <- 1:ncell(test)
 
-matrix.prof <- matrix(nrow = 200, ncol = 3)
+matrix.prof <- matrix(nrow = ymax, ncol = 3)
 
 for (i in 1:nrow(matrix.prof)) {
   
   matrix.prof[i,1] <- round(ncell(test) * (i-1) / nrow(matrix.prof))  
   matrix.prof[i,2] <- round(ncell(test) * i / nrow(matrix.prof))
-  matrix.prof[i,3] <- -i
+  matrix.prof[i,3] <- i
   
 }
 
 prof <- classify(test, rcl = matrix.prof)
-plot(prof)
 
 ## Sauvegarde Raster
 
-writeRaster(x = prof, filename = "profondeur.tif")
+#writeRaster(x = prof, filename = "profondeur.tif")
