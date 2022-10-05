@@ -91,35 +91,34 @@ for (i in 1:length(liste.raster.racines)) {
     select(-x) %>%
     group_by(y) %>%
     summarise(across(everything(), sum))
+  # Calcul du nombre de Racines dans chanque tranche de sol mesurée. Donc on somme chaque ligne 
   
   resultat.NB.racines[[i]]$y <- sort(resultat.NB.racines[[i]]$y, decreasing = T)
   
   resultat.NB.racines[[i]] <- resultat.NB.racines[[i]] %>% arrange(y)
   
-}
+  names(resultat.NB.racines)[[i]] <- liste.raster.racines[i]
 
-View(resultat.NB.racines)
+}
 
 ### Calcul de la RLD
 
-RLD <- NB.Racines %>%
-  summarise(across(), NB.Racines * 0.5 / 25) %>%
-  mutate(y = y / 0.5 * 25)
+resultat.RLD <- resultat.NB.racines
 
-#plot(x = NB.Racines$`17-VLB-2017-1-data.csv`, y = NB.Racines$y)
+for (i in 1:length(resultat.RLD)) {
+  
+  resultat.RLD[[i]] <- resultat.RLD[[i]] %>% 
+    summarise(across(), resultat.RLD[[i]] * 0.5 / 25) %>% 
+    mutate(y = y / 0.5 * 25)
+  
+}
 
-# Pour demain, ce que tu devrais faire, c'est coder comment tester les différentes modalitées par rapports au Temoin
-# Modalités : 
-# - Temoin
-# - Variation Resolution entre 2:2 et 5:5
-# - Variation de Méthode entres fonctions d'aggrégation
-# 
 # Coder calcul d'indicateur de différences par rapport au Temoin :
-# Deviation
-# Ecart à la moyenne
-# RMSE
-# Efficience
-# ect.
-# 
-# 
+#   Deviation
+#   Ecart à la moyenne
+#   RMSE
+#   Efficience
+#   ect.
+
+
 
