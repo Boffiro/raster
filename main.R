@@ -34,16 +34,18 @@ for (i in 1:length(list.files("bdd-essais-profils-data/"))) {
 
 }
 
-raster.stack
-#plot(raster.stack)
-
-rm(list=setdiff(ls(), "raster.stack"))
+rm(list = setdiff(ls(), "raster.stack"))
 # Je ne garde que le stack crée
+
+raster.stack
 
 ### Etape de désagréagation
 
 ext(raster.stack) <- c(0, 2 * ncol(raster.stack), 0, 2 * nrow(raster.stack))
 # Changement de l'extend des Raster pour permettre que la résolution soit 1:1
+
+raster.stack.temoin <- raster.stack
+#Je garde de coté le Stack de Raster de res 2:2 qui me servira de temoin
 
 raster.stack <- terra::disagg(x = raster.stack, fact = 2, method = "near")
 # Etape de désagrégation qui fait que la résolution est de 1:1
@@ -57,26 +59,48 @@ raster.stack <- terra::disagg(x = raster.stack, fact = 2, method = "near")
 
 ### Etape d'agréagation
 
-raster.stack <- terra::aggregate(x = raster.stack, fact = 5, fun = "median")
+liste.test <- data.frame(fact = c(2, 2, 2, 2, 2, 5, 5, 5, 5, 5),
+                         fun = c("mean", "median", "max", "min", "modal", "mean", "median", "max", "min", "modal"))
+
+for (i in 1:length(liste.test$fact)) {
+  
+  assign(paste0("raster.stack.", liste.test$fact[i],".", liste.test$fun[i]), 
+         value = aggregate(x = raster.stack, fact = liste.test$fact[i], fun = liste.test$fun[i]))
+  
+}
+
+rm(i)
+
 # Etape de désagrégation qui fait que la résolution est de 5:5
-# N.B.: Pour le choix de la fonction que l'on utilise pour la valeur d'aggrégation, le choix n'est pas encore arrété. 
+# N.B.: Pour le choix de la fonction que l'on utilise pour la valeur d'aggrégation, le choix n'est pas encore arrété.
 # Je dois faire des test avec un JDD issues des données de Miniriz. 
 # L'objectif est de trouver la méthode qui fait que la RLD que l'on calcule à partir de données de profils soit le plus cohérent par rapport à la RLD Miniriz. 
 # Je dois donc faire passer le JDD Miniriz en tant que raster de 2:2cm, puis en calculer la RLD, et comparer aux résultats que Antoine et Gaethan ont obtenus.  
 
+### Calcul du nombre de racines
+
+liste.raster.racines <- setdiff(ls(), c("raster.stack", "liste.test"))
+
+resultat.NB.racines <- list()
+
+for (i in 1:length(liste.raster.racines)) {
+  
+  resultat.NB.racines[[i]] <- terra::as.data.frame(x = get(liste.raster.racines[i]), xy = T)
+
+  resultat.NB.racines[[i]] <- resultat.NB.racines[[i]] %>%
+    select(-x) %>%
+    group_by(y) %>%
+    summarise(across(everything(), sum))
+  
+  resultat.NB.racines[[i]]$y <- sort(resultat.NB.racines[[i]]$y, decreasing = T)
+  
+  resultat.NB.racines[[i]] <- resultat.NB.racines[[i]] %>% arrange(y)
+  
+}
+
+View(resultat.NB.racines)
+
 ### Calcul de la RLD
-
-NB.Racines <- terra::as.data.frame(raster.stack, xy = T)
-
-NB.Racines <- NB.Racines %>%
-  select(-x) %>%
-  group_by(y) %>%
-  summarise(across(everything(), sum))
-
-NB.Racines$y <- sort(NB.Racines$y, decreasing = T)
-
-NB.Racines <- NB.Racines %>%
-  arrange(y)
 
 RLD <- NB.Racines %>%
   summarise(across(), NB.Racines * 0.5 / 25) %>%
@@ -91,7 +115,7 @@ RLD <- NB.Racines %>%
 # - Variation de Méthode entres fonctions d'aggrégation
 # 
 # Coder calcul d'indicateur de différences par rapport au Temoin :
-# Deviantion
+# Deviation
 # Ecart à la moyenne
 # RMSE
 # Efficience
