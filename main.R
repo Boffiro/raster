@@ -44,7 +44,7 @@ raster.stack
 ext(raster.stack) <- c(0, 2 * ncol(raster.stack), 0, 2 * nrow(raster.stack))
 # Changement de l'extend des Raster pour permettre que la résolution soit 1:1
 
-raster.stack.temoin <- raster.stack
+raster.stack.2.temoin <- raster.stack
 #Je garde de coté le Stack de Raster de res 2:2 qui me servira de temoin
 
 raster.stack <- terra::disagg(x = raster.stack, fact = 2, method = "near")
@@ -57,10 +57,12 @@ raster.stack <- terra::disagg(x = raster.stack, fact = 2, method = "near")
 # De plus, je suis avec un raster représentant des données actuellement qualitatives. 
 # Cette méthode permet de conserver les classes de données déterminées. 
 
+raster.stack.5.temoin <- aggregate(raster.stack, fact = 5)
+
 ### Etape d'agréagation
 
-liste.test <- data.frame(fact = c(2, 2, 2, 2, 2, 5, 5, 5, 5, 5),
-                         fun = c("mean", "median", "max", "min", "modal", "mean", "median", "max", "min", "modal"))
+liste.test <- data.frame(fact = c(2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5),
+                         fun = c("mean", "median", "max", "min", "modal", "sum", "mean", "median", "max", "min", "modal", "sum"))
 
 for (i in 1:length(liste.test$fact)) {
   
@@ -101,7 +103,9 @@ for (i in 1:length(liste.raster.racines)) {
 
 }
 
-### Calcul de la RLD
+### Calcul de la RLD ####
+
+### Mise en forme résultats
 
 resultat.RLD <- resultat.NB.racines
 
@@ -113,6 +117,68 @@ for (i in 1:length(resultat.RLD)) {
   
 }
 
+rm(list = setdiff(ls(), c("resultat.NB.racines", "resultat.RLD")))
+
+### Etude des résultats
+
+liste.res.5 <- c("raster.stack.5.max", "raster.stack.5.mean", "raster.stack.5.median", "raster.stack.5.min", "raster.stack.5.modal", "raster.stack.5.sum", "raster.stack.5.temoin")
+
+resultat.RLD.etudie <- list()
+
+temp.2 <- data.frame(rm = matrix(ncol = 1, nrow = 26))
+
+for (j in 2:length(resultat.RLD$raster.stack.5.temoin)) {
+  
+  temp.2 <- data.frame(rm = matrix(ncol = 1, nrow = 26))
+  
+  for (i in liste.res.5) {
+    
+    temp <- resultat.RLD[[i]][j]
+  
+    names(temp) <- i
+
+    temp.2 <- cbind(temp.2, temp)
+  
+  }
+  
+  temp.2$rm <- NULL
+
+  resultat.RLD.etudie[[j-1]] <- assign(x = names(resultat.RLD[[i]][j]), value = temp.2)   
+  
+  names(resultat.RLD.etudie)[j-1] <- names(resultat.RLD$raster.stack.5.temoin)[j]
+  
+}
+
+rm(list = setdiff(ls(), c("liste.res.5", "resultat.NB.racines", "resultat.RLD", "resultat.RLD.etudie") ))
+
+### Calcul Etude Résultats
+
+liste.res.5 <- setdiff(liste.res.5, "raster.stack.5.temoin")
+
+liste.etude.resultat <- list()
+
+for (i in 1:length(resultat.RLD.etudie)) {
+
+#  for (j in 1:2) {
+
+#    i = 1
+    j = 1  
+  
+    RMSE <- rmse(actual = resultat.RLD.etudie[[i]]$raster.stack.5.temoin,
+                 predicted = resultat.RLD.etudie[[i]][,j])
+
+    liste.etude.resultat[[i]][j] <- list(RMSE)
+    
+#    names(liste.etude.resultat)[i] <- names(resultat.RLD.etudie[i])
+    
+#    names(liste.etude.resultat[i][[j]]) <- paste0(liste.res.5[j], ".RMSE")
+    
+#   }
+  
+}
+
+### Dump ####
+
 # Coder calcul d'indicateur de différences par rapport au Temoin :
 #   Deviation
 #   Ecart à la moyenne
@@ -120,5 +186,5 @@ for (i in 1:length(resultat.RLD)) {
 #   Efficience
 #   ect.
 
-
-
+# Extraire 
+# Utiliser le package metrics
