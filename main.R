@@ -5,36 +5,36 @@
 
 source("script-chargement-paquets.R")
 
-### Chargement données
+### Chargement donnees
 
 source("script-chargement-donnees-profils-raster.R")
 
 rm(list = setdiff(ls(), "raster.stack"))
-# Je ne garde que le stack crée
+# Je ne garde que le stack cree
 
 raster.stack
 
-### Etape de désagréagation
+### Etape de desagreagation
 
 ext(raster.stack) <- c(0, 2 * ncol(raster.stack), 0, 2 * nrow(raster.stack))
-# Changement de l'extend des Raster pour permettre que la résolution soit 1:1
+# Changement de l'extend des Raster pour permettre que la resolution soit 1:1
 
 raster.stack.2.temoin <- raster.stack
-#Je garde de coté le Stack de Raster de res 2:2 qui me servira de temoin
+#Je garde de cote le Stack de Raster de res 2:2 qui me servira de temoin
 
 raster.stack <- terra::disagg(x = raster.stack, fact = 2, method = "near")
-# Etape de désagrégation qui fait que la résolution est de 1:1
+# Etape de desagregation qui fait que la resolution est de 1:1
 
-# N.B.: Je change la résolution pour que maintenant, chaque pixel face 1cm de coté.
-# C'est la méthode que j'ai trouvé pour pouvoir obtenir ensuite une résolution de 5cm par 5cm comme je le voulais 
-# J'utilise la méthode de désagrégation de "nearest neighbour" parce que celle-ci ne changera pas les données que j'ai. 
+# N.B.: Je change la resolution pour que maintenant, chaque pixel face 1cm de cote.
+# C'est la methode que j'ai trouve pour pouvoir obtenir ensuite une resolution de 5cm par 5cm comme je le voulais 
+# J'utilise la methode de desagregation de "nearest neighbour" parce que celle-ci ne changera pas les donnees que j'ai. 
 # En effet, ayant des limites bien rectilignes, les changements de valeurs doivent rester abruptes. 
-# De plus, je suis avec un raster représentant des données actuellement qualitatives. 
-# Cette méthode permet de conserver les classes de données déterminées. 
+# De plus, je suis avec un raster representant des donnees actuellement qualitatives. 
+# Cette methode permet de conserver les classes de donnees determinees. 
 
 raster.stack.5.temoin <- aggregate(raster.stack, fact = 5)
 
-### Etape d'agréagation
+### Etape d'agreagation
 
 liste.test <- data.frame(fact = c(2, 2, 2, 2, 2, 2, 5, 5, 5, 5, 5, 5),
                          fun = c("mean", "median", "max", "min", "modal", "sum", "mean", "median", "max", "min", "modal", "sum"))
@@ -48,11 +48,11 @@ for (i in 1:length(liste.test$fact)) {
 
 rm(i)
 
-# Etape de désagrégation qui fait que la résolution est de 5:5
-# N.B.: Pour le choix de la fonction que l'on utilise pour la valeur d'aggrégation, le choix n'est pas encore arrété.
-# Je dois faire des test avec un JDD issues des données de Miniriz. 
-# L'objectif est de trouver la méthode qui fait que la RLD que l'on calcule à partir de données de profils soit le plus cohérent par rapport à la RLD Miniriz. 
-# Je dois donc faire passer le JDD Miniriz en tant que raster de 2:2cm, puis en calculer la RLD, et comparer aux résultats que Antoine et Gaethan ont obtenus.  
+# Etape de desagregation qui fait que la resolution est de 5:5
+# N.B.: Pour le choix de la fonction que l'on utilise pour la valeur d'aggregation, le choix n'est pas encore arrete.
+# Je dois faire des test avec un JDD issues des donnees de Miniriz. 
+# L'objectif est de trouver la methode qui fait que la RLD que l'on calcule a partir de donnees de profils soit le plus coherent par rapport à la RLD Miniriz. 
+# Je dois donc faire passer le JDD Miniriz en tant que raster de 2:2cm, puis en calculer la RLD, et comparer aux resultats que Antoine et Gaethan ont obtenus.  
 
 ### Calcul du nombre de racines
 
@@ -68,7 +68,7 @@ for (i in 1:length(liste.raster.racines)) {
     select(-x) %>%
     group_by(y) %>%
     summarise(across(everything(), sum))
-  # Calcul du nombre de Racines dans chanque tranche de sol mesurée. Donc on somme chaque ligne 
+  # Calcul du nombre de Racines dans chanque tranche de sol mesuree. Donc on somme chaque ligne 
   
   resultat.NB.racines[[i]]$y <- sort(resultat.NB.racines[[i]]$y, decreasing = T)
   
@@ -80,7 +80,7 @@ for (i in 1:length(liste.raster.racines)) {
 
 ### Calcul de la RLD ####
 
-### Mise en forme résultats
+### Mise en forme resultats
 
 resultat.RLD <- resultat.NB.racines
 
@@ -94,7 +94,7 @@ for (i in 1:length(resultat.RLD)) {
 
 rm(list = setdiff(ls(), c("resultat.NB.racines", "resultat.RLD")))
 
-### Etude des résultats
+### Etude des resultats
 
 liste.res.5 <- c("raster.stack.5.max", "raster.stack.5.mean", "raster.stack.5.median", "raster.stack.5.min", "raster.stack.5.modal", "raster.stack.5.sum", "raster.stack.5.temoin")
 
@@ -126,7 +126,7 @@ for (j in 2:length(resultat.RLD$raster.stack.5.temoin)) {
 
 rm(list = setdiff(ls(), c("liste.res.5", "resultat.NB.racines", "resultat.RLD", "resultat.RLD.etudie")))
 
-### Calcul Etude Résultats
+### Calcul Etude Resultats
 
 liste.res.5 <- setdiff(liste.res.5, "raster.stack.5.temoin")
 
@@ -157,9 +157,9 @@ test <- mget(setdiff(ls(),c("i", "j", "Accuracy", "liste.etude.resultat",
 
 ### Dump ####
 
-# Coder calcul d'indicateur de différences par rapport au Temoin :
+# Coder calcul d'indicateur de differences par rapport au Temoin :
 #   Deviation
-#   Ecart à la moyenne
+#   Ecart a la moyenne
 #   RMSE
 #   Efficience
 #   ect.
