@@ -7,32 +7,7 @@ source("script-chargement-paquets.R")
 
 ### Chargement données
 
-raster.stack <- terra::rast()
-
-for (i in 1:length(list.files("bdd-essais-profils-data/"))) {
-  
-  path <- list.files("bdd-essais-profils-data/")[i] # Changer 1 par i pour faire boucler
-  
-  raw <- read.csv2(file = paste0("bdd-essais-profils-data/",path))
-  # Je charge mon fichier source
-  
-  raw$X <- NULL
-  raw$prof...largeur <- NULL
-  raw$fichier <- NULL
-  # Je retire les cases inutiles présentes dans le template de base servant de légendes et je ne garde que les données pures
-  
-  raster.temp <- rast(x = as.matrix(raw))
-  # Je crée le raster
-
-  names(raster.temp) <- path
-  # Je renome la couche du raster
-
-  #print(ext(raster.temp))
-  
-  raster.stack <- c(raster.stack, raster.temp)
-  # Je combine les raster pour créer un stack
-
-}
+source("script-chargement-donnees-profils-raster.R")
 
 rm(list = setdiff(ls(), "raster.stack"))
 # Je ne garde que le stack crée
@@ -149,7 +124,7 @@ for (j in 2:length(resultat.RLD$raster.stack.5.temoin)) {
   
 }
 
-rm(list = setdiff(ls(), c("liste.res.5", "resultat.NB.racines", "resultat.RLD", "resultat.RLD.etudie") ))
+rm(list = setdiff(ls(), c("liste.res.5", "resultat.NB.racines", "resultat.RLD", "resultat.RLD.etudie")))
 
 ### Calcul Etude Résultats
 
@@ -159,23 +134,26 @@ liste.etude.resultat <- list()
 
 for (i in 1:length(resultat.RLD.etudie)) {
 
-#  for (j in 1:2) {
+  for (j in 1:6) {
 
-#    i = 1
-    j = 1  
-  
     RMSE <- rmse(actual = resultat.RLD.etudie[[i]]$raster.stack.5.temoin,
                  predicted = resultat.RLD.etudie[[i]][,j])
 
-    liste.etude.resultat[[i]][j] <- list(RMSE)
+    Accuracy <- accuracy(actual = resultat.RLD.etudie[[i]]$raster.stack.5.temoin,
+                         predicted = resultat.RLD.etudie[[i]][,j])
     
-#    names(liste.etude.resultat)[i] <- names(resultat.RLD.etudie[i])
-    
-#    names(liste.etude.resultat[i][[j]]) <- paste0(liste.res.5[j], ".RMSE")
-    
-#   }
-  
+    temp <- list(RMSE = RMSE, Accuracy = Accuracy)
+      
+    assign(x = paste0(names(resultat.RLD.etudie[i]), ".", names(resultat.RLD.etudie[[i]])[j]) , value = temp)
+
+   }
+
 }
+
+test <- mget(setdiff(ls(),c("i", "j", "Accuracy", "liste.etude.resultat", 
+                            "liste.res.5", "resultat.NB.racines", 
+                            "resultat.RLD", "resultat.RLD.etudie", "RMSE", "temp"))
+                     )
 
 ### Dump ####
 
