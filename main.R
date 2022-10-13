@@ -7,7 +7,13 @@ source("script-chargement-paquets.R")
 
 ### Chargement donnees
 
+## Chargement donnees de profils racinaires
+
 source("script-chargement-donnees-profils-raster.R")
+
+## Chargement donnees de Miniriz
+
+source("script-chargement-donnees-miniriz-raster.R")
 
 rm(list = setdiff(ls(), "raster.stack"))
 # Je ne garde que le stack cree
