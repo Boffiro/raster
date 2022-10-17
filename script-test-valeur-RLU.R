@@ -112,12 +112,6 @@ ggplot(data = RLD.res5, aes(y = y)) +
 
 ### Optim ####
 
-
-
-name <- function(variables) {
-  
-}
-
 optim(par = ,
       fn = )
 
