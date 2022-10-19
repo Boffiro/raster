@@ -5,10 +5,10 @@ load("JDD-temoins-RLD-res-1-2-5.RData")
 
 raster.stack <- terra::rast("JDD-raster-donnees-miniriz.tif")
 
-### ###
+### Choix des paramètres ###
 
-i = 5
-RLU <- 1
+i = 5 # Choix de la fonction de desaggrégation
+RLU <- 1 # Choix de la valeur seuil de RLU
 
 ### ###
 

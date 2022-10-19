@@ -5,19 +5,28 @@
 #   - de la RLD en fonction de la profondeur
 #   - des notes en foncion de la profondeur
 
-path <- list.files(path = "bdd-essais-miniriz-data/vlb-2022/")
-# Localisation des .csv
+list.dirs <- list.files(path = "bdd-essais-miniriz-data/")
+# Localisation des dossiers contenant les .csv
 
-for (i in 1:length(path)) {
+for (j in 1:length(list.dirs)) {
+  
+  dir <- paste0("bdd-essais-miniriz-data/", list.dirs[j])
+  
+  path <- list.files(path = paste0(dir, "/"))
+  # Localisation des .csv
 
-  assign(x = path[i], value = read.csv2(paste0("bdd-essais-miniriz-data/vlb-2022/", path[i])))
-  #Je charge mes .csv
+  for (i in 1:length(path)) {
     
+    assign(x = path[i], value = read.csv2(paste0(dir, "/", path[i])))
+    #Je charge mes .csv
+    
+  }
+  
 }
 
-test <- mget(setdiff(ls(), c("i", "path")))
+test <- mget(setdiff(ls(), c("i", "path", "dir", "j", "list.dirs")))
 # J'en fait un unique objet
-rm(list = setdiff(ls(), c("i", "path", "test")))
+rm(list = setdiff(ls(), c("i", "path", "test", "dir", "j", "list.dirs")))
 # Je me separe de ce que je n'utilise pas
 
 for (i in 1:length(test)) {
@@ -34,7 +43,7 @@ for (i in 1:length(test)) {
       
 }
 
-rm(list = c("i", "temp"))
+rm(list = c("i", "j", "temp"))
 # Je mets en forme les donnees issues de .csv pour la rasterization
 
 raster.stack <- terra::rast()
@@ -53,10 +62,17 @@ for (i in 1:length(test)) {
   }
   # Je convertis le tout en classe numeric
   
+  while (length(temp[,1]) < 200) {
+    
+    temp <- rbind(temp,0)
+    
+  }
+  # Je standardise mes raster à une profondeur de 200
+  
   raster.temp <- rast(x = as.matrix(temp))
   # Je cree le Raster
   
-  names(raster.temp) <- path[i]
+  names(raster.temp) <- names(test)[i]
   # Je renome la couche du raster
   
   raster.stack <- c(raster.stack, raster.temp)
@@ -65,10 +81,8 @@ for (i in 1:length(test)) {
 }
 
 rm(list = setdiff(ls(),"raster.stack"))
-
-#raster.stack
-plot(raster.stack)
+# Je garde le fichier qui m'interesse
 
 terra::writeRaster(filename = "JDD-raster-donnees-miniriz.tif", x = raster.stack, overwrite = T)
-
+# Je sauvegarde le fichier dont j'ai besoin au format .tif adapte aux rasters
 

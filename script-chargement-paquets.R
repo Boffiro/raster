@@ -12,5 +12,5 @@ library(spatstat)
 library(dplyr)
 library(ggplot2)
 
-library(Metrics)
-library(numbers)
+#library(Metrics)
+#library(numbers)

@@ -1,9 +1,11 @@
 
 ### Script creation des temoins pour 
 
+# Chargement JDD 
+
 rm(list = setdiff(ls(),""))
 
-source("script-chargement-donnees-miniriz-raster.R")
+raster.stack <- terra::rast("JDD-raster-donnees-miniriz.tif") # JDD de test
 
 # Ici le raster represente le pourcentage de racine presente dans la surface de 1cm2 que represente un pixel.
 # On a donc une mesure en cm par cm2
